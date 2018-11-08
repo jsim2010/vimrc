@@ -1,35 +1,9 @@
 execute 'py3file' fnamemodify($MYVIMRC, ':p:h') . '/init.py'
 
-call plug#begin(fnamemodify($MYVIMRC, ":p:h") . '/plugged')
-
-" Plugin enhancements
-Plug 'jsim2010/vpi'
-Plug 'tpope/vim-repeat'
-
-" Colorscheme
-Plug 'chriskempson/base16-vim'
-
-" Language support
-Plug 'sheerun/vim-polyglot'
-
-Plug 'valloric/youcompleteme'
-let g:ycm_show_diagnostics_ui = 0
-
-" Actions
-" There is an unknown issue with the shorthand version 'tpope/vim-eunuch'.
-Plug 'https://github.com/tpope/vim-eunuch.git'
-Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-abolish'
-
-" Movement enhancements
-Plug 'wellle/targets.vim'
-Plug 'justinmk/vim-sneak'
-Plug 'matze/vim-move'
-" kana/vim-textobj-user
-
-call plug#end()
 
 
+command! Term terminal ++curwin
+nnoremap <C-CR> :Term<CR>
 
 nnoremap <C-q> :call StartSearch()<CR>
 
