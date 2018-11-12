@@ -2,8 +2,6 @@ execute 'py3file' fnamemodify($MYVIMRC, ':p:h') . '/init.py'
 
 
 
-command! Term terminal ++curwin
-nnoremap <C-CR> :Term<CR>
 
 nnoremap <C-q> :call StartSearch()<CR>
 

@@ -120,3 +120,5 @@ vpi.map([vpi.MODE_TERMINAL], "<C-`>", "Esc")
 # Do not lose selection after shift.
 for shift in ['<', '>']:
     vpi.map([vpi.MODE_VISUAL], shift, f"{shift}gv")
+
+vpi.map([vpi.MODE_NORMAL], "<C-CR>", ":terminal ++curwin<CR>")
