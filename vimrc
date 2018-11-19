@@ -5,14 +5,14 @@ execute 'py3file' fnamemodify($MYVIMRC, ':p:h') . '/init.py'
 
 nnoremap <C-q> :call StartSearch()<CR>
 
-function! StartSearch()
-  let g:search_current_bufnr = bufnr('')
-  let g:search_file = expand('%:p')
-  call vpi#loclist#clear(0)
-  leftabove lopen
-  redraw
-  let l:is_running = v:true
-  let l:current_expression = ''
+function! SSearch()
+  "let g:search_current_bufnr = bufnr('')
+  "let g:search_file = expand('%:p')
+  "call vpi#loclist#clear(0)
+  "leftabove lopen
+  "redraw
+  "let l:is_running = v:true
+  "let l:current_expression = ''
   let g:search_job = job_start('help')
   
   while l:is_running

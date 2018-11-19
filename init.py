@@ -47,12 +47,9 @@ vpi.expandtab = True
 vpi.formatoptions += vpi.FORMATOPTIONS_REMOVE_COMMENT_LEADER
 
 vpi.guicursor = [
-    (
-        [vpi.MODE_NORMAL, vpi.MODE_VISUAL, vpi.MODE_COMMAND_LINE],
-        [vpi.GUICURSOR_SHAPE_BLOCK],
-    ),
-    ([vpi.MODE_OPERATOR], [f"{vpi.GUICURSOR_SHAPE_HORIZONTAL}15"]),
-    ([vpi.MODE_INSERT, vpi.MODE_COMMAND_LINE_INSERT], [f"{vpi.GUICURSOR_SHAPE_VERTICAL}10"]),
+    vpi.GuicursorPart([vpi.MODE_NORMAL, vpi.MODE_VISUAL], [vpi.GUICURSOR_SHAPE_BLOCK]),
+    vpi.GuicursorPart([vpi.MODE_OPERATOR], [f"{vpi.GUICURSOR_SHAPE_HORIZONTAL}15"]),
+    vpi.GuicursorPart([vpi.MODE_INSERT, vpi.MODE_COMMAND_LINE, vpi.MODE_COMMAND_LINE_INSERT], [f"{vpi.GUICURSOR_SHAPE_VERTICAL}10"]),
 ]
 
 # Do not use up screen space with menu, tool or scroll bars.
@@ -95,8 +92,12 @@ vpi.tildeop = True
 vpi.wrapscan = False
 
 
-# Improve <C-L>.
-vpi.map([vpi.MODE_NORMAL], "<C-L>", ":nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>", ["<silent>"])
+# Improve <C-L> to update everything.
+@vpi.function
+def Clear():
+    vpi.redraw()
+
+vpi.map(vpi.MODE_NORMAL, "<C-L>", Clear)
 
 # s and S should always be sneak motion.
 for key in ['s', 'S']:
@@ -104,21 +105,30 @@ for key in ['s', 'S']:
 
 # <C-N> and <C-P> in normal are already implemented by j and k and their usual functionality is compatible with n and N.
 # Search repeat movements should always move in the same direction.
-vpi.map(vpi.MOTION_MODES, "<C-N>", "'Nn'[v:searchforward]", ["<expr>"])
-vpi.map(vpi.MOTION_MODES, "<C-P>", "'nN'[v:searchforward]", ["<expr>"])
+vpi.map(vpi.MOTION_MODES, "<expr> <C-N>", "'Nn'[v:searchforward]")
+vpi.map(vpi.MOTION_MODES, "<expr> <C-P>", "'nN'[v:searchforward]")
 
 # Better than default <C-N> and <C-P> in command-line mode.
-vpi.map([vpi.MODE_COMMAND_LINE], "<C-N>", "<Down>")
-vpi.map([vpi.MODE_COMMAND_LINE], "<C-P>", "<Up>")
+vpi.map(vpi.MODE_COMMAND_LINE, "<C-N>", "<Down>")
+vpi.map(vpi.MODE_COMMAND_LINE, "<C-P>", "<Up>")
 
 # <Esc> always goes to normal mode.
-vpi.map([vpi.MODE_TERMINAL], "<Esc>", "<C-\><C-N>")
+vpi.map(vpi.MODE_TERMINAL, "<Esc>", "<C-\><C-N>")
 
 # Provide functionality to send <Esc> to terminal.
-vpi.map([vpi.MODE_TERMINAL], "<C-`>", "Esc")
+vpi.map(vpi.MODE_TERMINAL, "<C-`>", "<Esc>")
 
 # Do not lose selection after shift.
 for shift in ['<', '>']:
-    vpi.map([vpi.MODE_VISUAL], shift, f"{shift}gv")
+    vpi.map(vpi.MODE_VISUAL, shift, f"{shift}gv")
 
-vpi.map([vpi.MODE_NORMAL], "<C-CR>", ":terminal ++curwin<CR>")
+vpi.map(vpi.MODE_NORMAL, "<C-CR>", ":terminal ++curwin<CR>")
+
+@vpi.function
+def StartSearch():
+    buffer = vpi.current_buffer
+    expression = ""
+    is_running = True
+    vpi.loclist[vpi.current_window.number] = []
+    vpi.open_loclist()
+    vpi.redraw()
