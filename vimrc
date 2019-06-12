@@ -1,67 +1,80 @@
-execute 'py3file' fnamemodify($MYVIMRC, ':p:h') . '/init.py'
+" Set config to default values.
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim
 
 
+let s:pkg_dir = fnamemodify($MYVIMRC, ':p:h') . '/pack/pkg/start'
 
+function! AddPlugin(plugin)
+  let l:plugin_name = split(a:plugin, "/")[-1]
+  let l:plugin_dir = s:pkg_dir . "/" . l:plugin_name
 
-nnoremap <C-q> :call StartSearch()<CR>
-
-function! SSearch()
-  "let g:search_current_bufnr = bufnr('')
-  "let g:search_file = expand('%:p')
-  "call vpi#loclist#clear(0)
-  "leftabove lopen
-  "redraw
-  "let l:is_running = v:true
-  "let l:current_expression = ''
-  let g:search_job = job_start('help')
-  
-  while l:is_running
-    let l:char = getchar()
-
-    if l:char == 27
-      " <ESC>
-      let l:is_running = v:false
-    elseif l:char == 13
-      " <CR>
-      let l:is_running = v:false
-      normal! 
-    elseif l:char == 14
-      " <C-N>
-      normal! j
-      redraw
-    elseif l:char == 16
-      " <C-P>
-      normal! k
-      redraw
-    elseif l:char ==# "\<BS>"
-      let l:current_expression = l:current_expression[0:-2]
-      call Search(l:current_expression)
-    else
-      let l:current_expression .= nr2char(l:char)
-      call Search(l:current_expression)
-    endif
-  endwhile
-
-  lclose
-endfunction
-
-function! Search(expression)
-  call vpi#loclist#clear(g:search_current_bufnr)
-  call vpi#loclist#config(g:search_current_bufnr, {'title': a:expression})
-
-  if job_status(g:search_job) ==# 'dead'
-    call job_stop(g:search_job)
-  endif
-
-  let g:search_job = job_start('find /N "' . a:expression . '" ' . g:search_file, {'out_cb': 'MyHandler', 'exit_cb': 'ExitHandler'})
-endfunction
-
-function! MyHandler(channel, msg)
-  if a:msg[0] ==# '['
-    call vpi#loclist#add(g:search_current_bufnr, [{'bufnr': g:search_current_bufnr, 'lnum': str2nr(substitute(a:msg, '[', '', '')), 'text': a:msg})
+  if !isdirectory(l:plugin_dir)
+    execute 'terminal ++close git clone https://github.com/' . a:plugin . '.git ' . l:plugin_dir
   endif
 endfunction
 
-function! ExitHandler(job, status)
-  redraw
-endfunction
+call mkdir(s:pkg_dir, "p")
+
+call AddPlugin('tpope/vim-repeat')
+call AddPlugin('chriskempson/base16-vim')
+call AddPlugin('sheerun/vim-polyglot')
+call AddPlugin('tpope/vim-eunich')
+call AddPlugin('tpope/vim-unimpaired')
+call AddPlugin('tpope/vim-abolish')
+call AddPlugin('welle/targets.vim')
+
+call AddPlugin('justinmk/vim-sneak')
+" s and S should always be sneak motion
+map s <Plug>Sneak_s
+map S <Plug>Sneak_S
+
+call AddPlugin('matze/vim-move')
+call AddPlugin('kana/vim-textobj-user')
+
+
+colorscheme base16-default-dark
+
+
+set autoindent
+set autoread
+" Make it easier to find cursor.
+set cursorline
+" Widely agreed to always use spaces.
+set expandtab
+" Remove comment leader when joining lines.
+set formatoptions+=j
+set laststatus=2
+" Reduce space taken by line number column.
+set nonumber
+" Improve speed for determining line-based movements.
+set relativenumber
+set shiftround
+set smarttab
+" When window is split, move to the created window.
+set splitbelow
+set splitright
+" Mode can generally be determined from cursor shape.
+set noshowmode
+
+if has('termguicolors')
+  set termguicolors
+endif
+
+" Make tilde behavior consistent.
+set tildeop
+set nowrapscan
+
+
+" Improve <C-L> to update screen in all cases.
+nnoremap <silent> <C-L> :diffupdate<CR>:redraw!<CR>
+nnoremap <silent> <C-CR> :terminal ++curwin<CR>
+
+" <Esc> should always return to Normal mode.
+tnoremap <Esc> <C-\><C-N>
+" Provide functionality to send <Esc> to terminal.
+tnoremap <C-`> <Esc>
+
+" Do not lose selection after shift.
+vnoremap < <gv
+vnoremap > >gv
